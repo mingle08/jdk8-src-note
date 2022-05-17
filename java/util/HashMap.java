@@ -664,6 +664,9 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                     if (e.hash == hash &&
                         ((k = e.key) == key || (key != null && key.equals(k))))
                         break;
+                    /**
+                        如果后一个节点不为空，且没有找到hash值相同的元素，p用来暂存e，因为下个循环，e要往p后面的节点遍历
+                     */
                     p = e;
                 }
             }
@@ -724,6 +727,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
             for (int j = 0; j < oldCap; ++j) {
                 Node<K,V> e;
                 if ((e = oldTab[j]) != null) {
+                    // 旧数组的节点赋给e，并在旧数组上置空
                     oldTab[j] = null;
                     if (e.next == null)
                         newTab[e.hash & (newCap - 1)] = e;
@@ -735,6 +739,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                         Node<K,V> next;
                         do {
                             next = e.next;
+                            // & oldCap，结果为0则元素在旧数组在哪个下标，在新数组也放在那个下标
                             if ((e.hash & oldCap) == 0) {
                                 if (loTail == null)
                                     loHead = e;
@@ -742,6 +747,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                                     loTail.next = e;
                                 loTail = e;
                             }
+                            // & oldCap，结果为1，则放在新数组的高位
                             else {
                                 if (hiTail == null)
                                     hiHead = e;
@@ -771,6 +777,9 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      */
     final void treeifyBin(Node<K,V>[] tab, int hash) {
         int n, index; Node<K,V> e;
+        /**
+            如果数组太小，小于64，则不树化，而是先扩容数组
+         */
         if (tab == null || (n = tab.length) < MIN_TREEIFY_CAPACITY)
             resize();
         else if ((e = tab[index = (n - 1) & hash]) != null) {
